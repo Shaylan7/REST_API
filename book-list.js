@@ -9,7 +9,7 @@ const setEditModal = (isbn) => {
 
     fetch(`http://localhost:3000/book/${isbn}`,{method: 'GET'})
         .then( response => response.json() )
-        .then( json => {
+        .then( book => {
             const {
                 title, 
                 author, 
@@ -29,7 +29,6 @@ const setEditModal = (isbn) => {
         
         } )
         .catch( error => console.error('error:', error) );
-
 
     }
 //*******Moved to within fetch call above *******/
@@ -52,13 +51,26 @@ const setEditModal = (isbn) => {
 //     document.getElementById('editForm').action = `http://localhost:3000/book/${isbn}`;
 // }
 
+// **** Fetch version *** 
+//  const deleteBook = (isbn) => {
+//  fetch(`http://localhost:3000/book/${isbn}`,{method: 'DELETE'})
+//          .then(response => response.json())
+//         //  .then(json => console.log(json))
+//     location.reload();
+// }
 
-const deleteBook = (isbn) => {
-fetch(`http://localhost:3000/book/${isbn}`,{method: 'DELETE'})
-        .then( response => response.json() )
-        .then( json => console.log(json))
+// **** async await version **** 
+const deleteBook = async (isbn) => {
+    const result = await fetch(`http://localhost:3000/book/${isbn}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-type': 'application/json'
+      },
+      body: null
+    })
+    location.reload();
 }
-
+// ******XMLH Version ******
 // const deleteBook = (isbn) => {
 //     const xhttp = new XMLHttpRequest();
 
@@ -68,10 +80,10 @@ fetch(`http://localhost:3000/book/${isbn}`,{method: 'DELETE'})
 //     location.reload();
 // }
 
-const loadbooks = () => {
+const loadBooks = () => {
     fetch("http://localhost:3000/book/")
         .then( response => response.json() )
-        .then( json => {
+        .then( books => {
             for (let book of books) {
                 const x = `
                     <div class="col-4">
@@ -83,7 +95,7 @@ const loadbooks = () => {
                                 <div>Publisher: ${book.publisher}</div>
                                 <div>Number Of Pages: ${book.numOfPages}</div>
                                 <hr>
-                                <button type="button" class="btn btn-danger">Delete</button>
+                                <button type="button" class="btn btn-danger" onClick="deleteBook(${book.isbn})">Delete</button>
                                 <button types="button" class="btn btn-primary" data-toggle="modal" 
                                     data-target="#editBookModal" onClick="setEditModal(${book.isbn})">
                                     Edit
@@ -91,12 +103,11 @@ const loadbooks = () => {
                             </div>
                         </div>
                     </div>
-                `
-        
+                `;
                 document.getElementById('books').innerHTML = document.getElementById('books').innerHTML + x;
             }
-        }
-        .catch( error => console.error('error:', error) );   
+        })
+        .catch(error => console.error('error:', error));   
 }
     loadBooks();
 
